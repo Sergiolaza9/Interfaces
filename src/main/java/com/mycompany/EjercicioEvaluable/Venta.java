@@ -15,13 +15,13 @@ public class Venta extends javax.swing.JFrame {
     private String ram;
     private String monitor;
     private String disco;
-    private boolean DVD;
-    private boolean WiFi;
-    private boolean Sintonizador;
-    private boolean Backup;
+    private String DVD;
+    private String WiFi;
+    private String Sintonizador;
+    private String Backup;
     
     
-    public Venta(String clientName, String location, String processor, String ram, String monitor, String disco, boolean DVD, boolean WiFi, boolean sintonizador, boolean backup) {
+    public Venta(String clientName, String location, String processor, String ram, String monitor, String disco, String DVD, String WiFi, String sintonizador, String backup) {
         this.nombre = clientName;
         this.localidad = location;
         this.procesador = processor;
@@ -33,7 +33,91 @@ public class Venta extends javax.swing.JFrame {
         this.Sintonizador=sintonizador;
         this.Backup= backup;
     }
-    
+      public String toString() {
+        return nombre + " - " + localidad + " - " + procesador + " - " + ram + " - " + monitor + " - " + disco
+               + " - DVD: " + DVD + ", WiFi: " + WiFi + ", Sintonizador: " + Sintonizador + ", Backup: " + Backup;
+    }
+    // Getters
+    public String getNombre() {
+        return nombre;
+    }
+
+    public String getLocalidad() {
+        return localidad;
+    }
+
+    public String getProcesador() {
+        return procesador;
+    }
+
+    public String getRam() {
+        return ram;
+    }
+
+    public String getMonitor() {
+        return monitor;
+    }
+
+    public String getDisco() {
+        return disco;
+    }
+
+    public String getDVD() {
+        return DVD;
+    }
+
+    public String getWiFi() {
+        return WiFi;
+    }
+
+    public String getSintonizador() {
+        return Sintonizador;
+    }
+
+    public String getBackup() {
+        return Backup;
+    }
+
+    // Setters
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public void setLocalidad(String localidad) {
+        this.localidad = localidad;
+    }
+
+    public void setProcesador(String procesador) {
+        this.procesador = procesador;
+    }
+
+    public void setRam(String ram) {
+        this.ram = ram;
+    }
+
+    public void setMonitor(String monitor) {
+        this.monitor = monitor;
+    }
+
+    public void setDisco(String disco) {
+        this.disco = disco;
+    }
+
+    public void setDVD(String DVD) {
+        this.DVD = DVD;
+    }
+
+    public void setWiFi(String WiFi) {
+        this.WiFi = WiFi;
+    }
+
+    public void setSintonizador(String Sintonizador) {
+        this.Sintonizador = Sintonizador;
+    }
+
+    public void setBackup(String Backup) {
+        this.Backup = Backup;
+    }
     /**
      * Creates new form VEnta
      */
@@ -101,6 +185,8 @@ public class Venta extends javax.swing.JFrame {
             }
         });
     }
+
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables

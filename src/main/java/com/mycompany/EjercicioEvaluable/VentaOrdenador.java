@@ -4,17 +4,24 @@
  */
 package com.mycompany.EjercicioEvaluable;
 
+import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Vector;
-import javax.swing.AbstractButton;
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
+import javax.swing.JOptionPane;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 /**
  *
  * @author alumno
  */
 public class VentaOrdenador extends javax.swing.JFrame {
+        private Vector<Venta> vectorventa = new Vector<>();
+        private DefaultListModel<String> listamodelo = new DefaultListModel<>();
         public void desabilita(){
             this.Localidad.setEnabled(false);
             this.Eliminar.setEnabled(false);
@@ -76,73 +83,215 @@ public class VentaOrdenador extends javax.swing.JFrame {
                  Buscar.setEnabled(true);
             }
    }
-          private void añadir( ){
-              String nombre = Nombre.getText();    
-              String localidad = (String) Localidad.getSelectedItem();
-              String procesador="";
-              String ram="";
-              String monitor="";
-              String disco="";
-              boolean DVD=false;
-              boolean WiFi=false;
-              boolean Sintonizador=false;
-              boolean Backup=false;
-              
-              
-              if (grupo1.getSelection() != null) {
-                procesador = grupo1.getSelection().getActionCommand();
-          }
-                if (grupo2.getSelection() != null) {
-                    ram = grupo2.getSelection().getActionCommand();
-          }
-                if (grupo3.getSelection() != null) {
-                    monitor = grupo3.getSelection().getActionCommand();
-          }
-                if (grupo4.getSelection() != null) {
-                    disco = grupo4.getSelection().getActionCommand();
-          }
-                if(Opciones1.isSelected()){
-                    DVD=true;
-                }
-                if(Opciones2.isSelected()){
-                    WiFi=true;
-                }
-                if(Opciones3.isSelected()){
-                     Sintonizador=true;
-                }
-                if(Opciones4.isSelected()){
-                    Backup=true;
-                }
-              Venta venta= new Venta(nombre, localidad, procesador,ram, monitor, disco, DVD, WiFi, Sintonizador, Backup);
-              Lista.add(venta);
-          }
-    /**
-     * Creates new form VentaOrdenador
-     */
-    public VentaOrdenador() {
-        initComponents();
-        Vector<Venta> venta = new Vector<>();
-        this.setLocationRelativeTo(null); 
+          private void añadir() {
+        String nombre = Nombre.getText();
+        String localidad = (String) Localidad.getSelectedItem();
+        String procesador = getButton(grupo1);
+        String ram = getButton(grupo2);
+        String monitor = getButton(grupo3);
+        String disco = getButton(grupo4);
+        String DVD = Opciones1.isSelected() ? "si" : "no";
+        String WiFi = Opciones2.isSelected() ? "si" : "no";
+        String Sintonizador = Opciones3.isSelected() ? "si" : "no";
+        String Backup = Opciones4.isSelected() ? "si" : "no";
+        Venta venta = new Venta(nombre, localidad, procesador, ram, monitor, disco, DVD, WiFi, Sintonizador, Backup);
+        vectorventa.add(venta);
+        listamodelo.addElement(nombre);
+        Lista.setModel(listamodelo);
         desabilita();
-        Nombre.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                procesarNombreCliente();
-            }
-        });    
+        Nombre.setText("");      
     }
-   /* public void buscarseleccionado(javax.swing.ButtonGroup grupo){
-        if (grupo==buttonGroup1){
-            Procesador=buttonGroup1.getSelection().toString();
-        }else if(grupo==buttonGroup2){
-            Memoria=buttonGroup2.getSelection().toString();
-        }else if(grupo==buttonGroup3){
-            Monitor=buttonGroup3.getSelection().toString();
-        }else if(grupo==buttonGroup4){
-            DiscoDuro=buttonGroup4.getSelection().toString();
+        private String getButton(ButtonGroup group) {
+        if (group.getSelection() != null) {
+            return group.getSelection().getActionCommand();
         }
-    }*/
+        return "";
+    }
+private void buscar() {
+    String nombreBuscado = Nombre.getText().trim();
+    if (nombreBuscado.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Por favor, ingrese un nombre para buscar.");
+        return;
+    }
+
+    boolean found = false;
+    int ventascliente = 0;
+    int index = 0;
+    int ventaactual = -1;
+    Venta ventaEncontrada = null;
+
+    while (index < vectorventa.size()) {
+        Venta venta = vectorventa.get(index);
+        
+
+        if (venta.getNombre().equalsIgnoreCase(nombreBuscado)) {
+            ventascliente++;
+            found = true;
+            if (ventaactual == -1) {
+                ventaactual = index;
+                ventaEncontrada = venta;
+            }
+            actualizarBotones(venta);
+            if (ventascliente > 1) {
+                int respuesta = JOptionPane.showConfirmDialog(this, 
+                    "¿Desea ver otra venta del mismo cliente?", "Buscar más ventas", JOptionPane.YES_NO_OPTION);
+                if (respuesta == JOptionPane.NO_OPTION) {
+                    break;
+                }
+            }
+        }        
+        index++;
+
+    if (!found) {
+        JOptionPane.showMessageDialog(this, "No se han encontrado ventas para el cliente: " + nombreBuscado);
+    } else {
+        if (ventaEncontrada != null) {
+            actualizarBotones(ventaEncontrada);
+            }
+        }
+    }
+}
+private void eliminarVenta() {
+    String nombreSeleccionado = Lista.getSelectedValue();
+    if (nombreSeleccionado == null) {
+        JOptionPane.showMessageDialog(this, "Por favor, seleccione un cliente de la lista.");
+        return;
+    }
     
+    Venta ventaAEliminar = null;
+    for (Venta venta : vectorventa) {
+        if (venta.getNombre().equalsIgnoreCase(nombreSeleccionado)) {
+            ventaAEliminar = venta;
+            break;
+        }
+    }
+
+    if (ventaAEliminar == null) {
+        JOptionPane.showMessageDialog(this, "No se ha encontrado una venta para el cliente seleccionado.");
+        return;
+    }
+
+    Nombre.setText(ventaAEliminar.getNombre());
+    actualizarBotones(ventaAEliminar);
+    Añadir.setEnabled(false);
+    Buscar.setEnabled(false);
+    Eliminar.setEnabled(true);
+
+    int respuesta = JOptionPane.showConfirmDialog(this, "¿Está seguro de que desea eliminar esta venta?", 
+                                                  "Confirmar eliminación", JOptionPane.YES_NO_OPTION);
+
+    if (respuesta == JOptionPane.YES_OPTION) {
+        vectorventa.remove(ventaAEliminar);
+        listamodelo.removeElement(nombreSeleccionado);
+        JOptionPane.showMessageDialog(this, "Venta eliminada exitosamente.");
+        Nombre.setText("");
+        desmarcarBotones();
+        Añadir.setEnabled(true);
+        Buscar.setEnabled(true);
+        Eliminar.setEnabled(false);
+    }
+}
+
+private void desmarcarBotones() {
+    Procesador1.setSelected(false);
+    Procesador2.setSelected(false);
+    Procesador3.setSelected(false);
+    Procesador4.setSelected(false);
+    Memoria1.setSelected(false);
+    Memoria2.setSelected(false);
+    Memoria3.setSelected(false);
+    Memoria4.setSelected(false);
+    Monitor1.setSelected(false);
+    Monitor2.setSelected(false);
+    Monitor3.setSelected(false);
+    Monitor4.setSelected(false);
+    Disco1.setSelected(false);
+    Disco2.setSelected(false);
+    Disco3.setSelected(false);
+    Disco4.setSelected(false);
+    Opciones1.setSelected(false);
+    Opciones2.setSelected(false);
+    Opciones3.setSelected(false);
+    Opciones4.setSelected(false);
+}
+    public VentaOrdenador() {
+    initComponents();
+    this.setLocationRelativeTo(null); 
+    desabilita();
+
+    // Definir los comandos de los botones
+    Procesador1.setActionCommand("Procesador1");
+    Procesador2.setActionCommand("Procesador2");
+    Procesador3.setActionCommand("Procesador3");
+    Procesador4.setActionCommand("Procesador4");
+
+    Memoria1.setActionCommand("Memoria1");
+    Memoria2.setActionCommand("Memoria2");
+    Memoria3.setActionCommand("Memoria3");
+    Memoria4.setActionCommand("Memoria4");
+
+    Monitor1.setActionCommand("Monitor1");
+    Monitor2.setActionCommand("Monitor2");
+    Monitor3.setActionCommand("Monitor3");
+    Monitor4.setActionCommand("Monitor4");
+
+    Disco1.setActionCommand("Disco1");
+    Disco2.setActionCommand("Disco2");
+    Disco3.setActionCommand("Disco3");
+    Disco4.setActionCommand("Disco4");
+
+    Nombre.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            procesarNombreCliente();
+        }
+    });
+    
+    Lista.addListSelectionListener(new ListSelectionListener() {
+        @Override
+        public void valueChanged(ListSelectionEvent e) {
+            if (!e.getValueIsAdjusting()) {
+                String nombreSeleccionado = Lista.getSelectedValue();
+                if (nombreSeleccionado != null) {
+                    mostrarDetallesVenta(nombreSeleccionado);
+                }
+            }
+        }
+    });
+}
+
+private void mostrarDetallesVenta(String nombreCliente) {
+    Venta ventaSeleccionada = null;
+    for (Venta venta : vectorventa) {
+        if (venta.getNombre().equalsIgnoreCase(nombreCliente)) {
+            ventaSeleccionada = venta;
+            break;
+        }
+    }
+
+    if (ventaSeleccionada != null) {
+        Nombre.setText(ventaSeleccionada.getNombre());
+        actualizarBotones(ventaSeleccionada);
+        Eliminar.setEnabled(true);
+        Añadir.setEnabled(false);
+        Buscar.setEnabled(false);
+    } else {
+        JOptionPane.showMessageDialog(this, "No se han encontrado detalles para el cliente seleccionado.");
+    }
+}
+
+private void actualizarBotones(Venta venta) {
+    if (venta.getProcesador().equals("Procesador1")) {
+        Procesador1.setSelected(true);
+    } else if (venta.getProcesador().equals("Procesador2")) {
+        Procesador2.setSelected(true);
+    } else if (venta.getProcesador().equals("Procesador3")) {
+        Procesador3.setSelected(true);
+    } else if (venta.getProcesador().equals("Procesador4")) {
+        Procesador4.setSelected(true);
+    }
+}
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -336,8 +485,18 @@ public class VentaOrdenador extends javax.swing.JFrame {
         });
 
         Buscar.setText("Buscar");
+        Buscar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BuscarActionPerformed(evt);
+            }
+        });
 
         Eliminar.setText("Eliminar");
+        Eliminar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                EliminarActionPerformed(evt);
+            }
+        });
 
         Cancelar.setText("Cancelar");
         Cancelar.addActionListener(new java.awt.event.ActionListener() {
@@ -564,6 +723,14 @@ public class VentaOrdenador extends javax.swing.JFrame {
        Nombre.setText("");
        
     }//GEN-LAST:event_CancelarActionPerformed
+    
+    private void BuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuscarActionPerformed
+    buscar();
+    }//GEN-LAST:event_BuscarActionPerformed
+
+    private void EliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EliminarActionPerformed
+        eliminarVenta();
+    }//GEN-LAST:event_EliminarActionPerformed
 
     /**
      * @param args the command line arguments
